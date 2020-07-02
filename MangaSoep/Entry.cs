@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Text;
 
 namespace MangaSoep
@@ -7,68 +10,50 @@ namespace MangaSoep
     public interface IEntry
     {
 
+    }
+
+    public class MangaStatus : Enumeration
+    {
+        public static MangaStatus Completed = new MangaStatus(0, "Completed", "#6AB187");
+        public static MangaStatus Dropped = new MangaStatus(1, "Dropped", "#D32D41");
+        public static MangaStatus Reading = new MangaStatus(2, "Reading", "White"  );
+        public static MangaStatus PlanToRead = new MangaStatus(3, "Plan to read", "#1C4E80");
+        public static MangaStatus OnHold = new MangaStatus(4, "On hold", "Yellow");
+
+        public string Color { get; }
+
+        public MangaStatus() { }
+
+        public MangaStatus(int id, string name, string color) : base(id, name)
+        {
+            Color = color;
+        }
 
     }
 
-    public class Status
+    class MangaEntry : INotifyPropertyChanged, IEntry
     {
-        public const string
-            PlanToRead = "Plan to Read",
-            Dropped = "Dropped",
-            Reading = "Reading",
-            Completed = "Completed",
-            OnHold = "On hold";
-    }
+        public event PropertyChangedEventHandler PropertyChanged;
 
-
-        class MangaEntry : IEntry
-    {
         public string Title { get; set; }
         public int ChaptersRead { get; set; }
         public int VolumesRead { get; set; }
         public int Rating { get; set; }
         public string ReadStatus { get; set; }
         public string Color { get; set; }
-        public string Source { get; set; }
+        public string Source { get; set; } = "question mark.png";
 
 
-        public MangaEntry(string title, int chaptersRead, int volumesRead, string status, int rating)
+        public MangaEntry(string title, int chaptersRead, int volumesRead, string status, string color, int rating, string source)
         {
             Title = title;
             ChaptersRead = chaptersRead;
             VolumesRead = volumesRead;
             ReadStatus = status;
             Rating = rating;
-            CheckStats();
-        }
-
-        void CheckStats()
-        {
-            UpdateStatus();
-        }
-
-        void UpdateStatus()
-        {
-            switch (ReadStatus){
-                case Status.Completed:
-                    Color = "#6AB187";
-                    break;
-                case Status.Dropped:
-                    Color = "#D32D41";
-                    break;
-                case Status.PlanToRead:
-                    Color = "1C4E80";
-                    break;
-                case Status.Reading:
-                    Color = "White";
-                    break;
-                case Status.OnHold:
-                    Color = "#DBAE58";
-                    break;
-                default:
-                    Color = "#DADADA";
-                    break;
-            }
+            Color = color;
+            Source = source;
         }
     }
+
 }

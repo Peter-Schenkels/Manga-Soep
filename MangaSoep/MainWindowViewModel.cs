@@ -1,15 +1,22 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 
 namespace MangaSoep
 {
-    class MainWindowViewModel
+    class MainWindowViewModel : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        ObservableCollection<IEntry> Entries { get; } = new ObservableCollection<IEntry>();
+        public IEntry SelectedEntry { get; set; }
+
+        //public ObservableCollection<IEntry> Entries { get; } = new ObservableCollection<IEntry>();
+
+        public IReadOnlyList<MangaStatus> MangaStatusOptions { get; } = Enumeration.GetAll<MangaStatus>().ToList();
 
         public MainWindowViewModel()
         {
         }
-
     }
 }

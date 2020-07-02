@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -30,6 +31,7 @@ namespace MangaSoep
 
         public MainWindow()
         {
+            DataContext = new MainWindowViewModel();
             InitializeComponent();
             onStart();
             JArray JsonArray = new JArray();
@@ -40,6 +42,7 @@ namespace MangaSoep
 
         void onStart()
         {
+
             try
             {
                 string file = File.ReadAllText("list.json");
@@ -47,36 +50,37 @@ namespace MangaSoep
                 list = JArray.Parse(file);
                 for (int i = 0; i < list.Count(); i++)
                 {
-                    string source = list[i].ToString();
-                    dynamic item = JObject.Parse(source);
-                    string title = item.Title;
-                    string status = item.ReadStatus;
-                    int chapter = item.ChaptersRead;
-                    int volumes = item.VolumesRead;
-                    int rating = item.Rating;
-                    AddToList(status, title, chapter, volumes, 10);
+                    string json = list[i].ToString();
+                    MangaEntry manga = Newtonsoft.Json.JsonConvert.DeserializeObject<MangaEntry>(json);
+                    AddToList(manga);
                 }
             }
-            catch { }
+            catch {
+                System.Windows.MessageBox.Show("Json read failed");
+            
+            }
+
         }
 
-        void AddToList(string status, string title, int chapters, int volumes, int rating)
+        void AddToList(MangaEntry manga)
         {
-            if (status == "Reading")
+            string status = manga.ReadStatus;
+
+            if (status == MangaStatus.Reading.Name)
             {
-                ReadingBox.Items.Insert(0, new MangaEntry(title, chapters, volumes, status, rating));
+                ReadingBox.Items.Insert(0, manga);
             }
-            else if (status == "Completed")
+            else if (status == MangaStatus.Completed.Name)
             {
-                Completedbox.Items.Insert(0, new MangaEntry(title, chapters, volumes, status, rating));
+                Completedbox.Items.Insert(0, manga);
             }
-            else if (status == "PlanToRead")
+            else if (status == MangaStatus.PlanToRead.Name)
             {
-                PlanToRead.Items.Insert(0, new MangaEntry(title, chapters, volumes, status, rating));
+                PlanToRead.Items.Insert(0, manga);
             }
-            else if (status == "Dropped")
+            else if (status == MangaStatus.Dropped.Name)
             {
-                Dropped.Items.Insert(0, new MangaEntry(title, chapters, volumes, status, rating));
+                Dropped.Items.Insert(0, manga);
             }
         }
 
@@ -92,7 +96,14 @@ namespace MangaSoep
             {
                 //MangaEntry item = (MangaEntry)(sender as ListBox).DataContext;
                 //if (item.Title != )
-                AddToList(Status.Text, MangaTitle.Text, int.Parse(currentChapter.Text), int.Parse(currentVolume.Text), int.Parse(Rating.Text));
+                AddToList(new MangaEntry(
+                    MangaTitle.Text, 
+                    int.Parse(currentChapter.Text), 
+                    int.Parse(currentVolume.Text), 
+                    Status.Text, Status.Foreground.ToString(), 
+                    int.Parse(Rating.Text), 
+                    "question mark.png")
+                    );
             }
             catch
             {
@@ -121,13 +132,11 @@ namespace MangaSoep
         private void MenuItem_Click_Delete(object sender, RoutedEventArgs e)
         {
             List<ListBox> list = new List<ListBox> { ReadingBox, Completedbox, PlanToRead, Dropped };
-            foreach (var box in list)
-            {
-                if (box.SelectedIndex != -1) {
-                    box.Items.Remove(box.SelectedItems[0]);
 
-                }
+            if (list[header.SelectedIndex].SelectedIndex != -1) {
+                list[header.SelectedIndex].Items.Remove(list[header.SelectedIndex].SelectedItem);
             }
+           
         }
 
         void selectImplementation(string title, int chaptersRead, int volumesRead, string status, int rating)
@@ -142,9 +151,9 @@ namespace MangaSoep
 
         private void selectCompleted(object sender, SelectionChangedEventArgs e)
         {
-            if(Completedbox.SelectedIndex != -1)
+            if(Completedbox.SelectedIndex != -1 && header.SelectedIndex == 1)
             {
-                var item = ReadingBox.SelectedItem as MangaEntry;
+                var item = Completedbox.SelectedItem as MangaEntry;
                 if (item == null) return;
                 selectImplementation(item.Title, item.ChaptersRead, item.VolumesRead, item.ReadStatus, item.Rating);
             }
@@ -153,7 +162,7 @@ namespace MangaSoep
 
         private void selectReading(object sender, SelectionChangedEventArgs e)
         {
-            if (ReadingBox.SelectedIndex != -1)
+            if (ReadingBox.SelectedIndex != -1 && header.SelectedIndex == 0)
             {
                 var item = ReadingBox.SelectedItem as MangaEntry;
                 if (item == null) return;
@@ -162,11 +171,22 @@ namespace MangaSoep
         }
 
 
+        //private void selectHold(object sender, SelectionChangedEventArgs e)
+        //{
+        //    if (Hold.SelectedIndex != -1)
+        //    {
+        //        var item = Hold.SelectedItem as MangaEntry;
+        //        if (item == null) return;
+        //        selectImplementation(item.Title, item.ChaptersRead, item.VolumesRead, item.ReadStatus, item.Rating);
+        //    }
+        //}
+
+
         private void selectDropped(object sender, SelectionChangedEventArgs e)
         {
-            if (Dropped.SelectedIndex != -1)
+            if (Dropped.SelectedIndex != -1 && header.SelectedIndex == 3)
             {
-                var item = ReadingBox.SelectedItem as MangaEntry;
+                var item = Dropped.SelectedItem as MangaEntry;
                 if (item == null) return;
                 selectImplementation(item.Title, item.ChaptersRead, item.VolumesRead, item.ReadStatus, item.Rating);
             }
@@ -175,9 +195,9 @@ namespace MangaSoep
 
         private void selectPlanned(object sender, SelectionChangedEventArgs e)
         {
-            if (PlanToRead.SelectedIndex != -1)
+            if (PlanToRead.SelectedIndex != -1 && header.SelectedIndex == 2)
             {
-                var item = ReadingBox.SelectedItem as MangaEntry;
+                var item = PlanToRead.SelectedItem as MangaEntry;
                 if (item == null) return;
                 selectImplementation(item.Title, item.ChaptersRead, item.VolumesRead, item.ReadStatus, item.Rating);
             }
@@ -185,16 +205,37 @@ namespace MangaSoep
 
         private void Button_Click_Update(object sender, RoutedEventArgs e)
         {
-            var item = ReadingBox.SelectedItem as MangaEntry;
+            List<ListBox> list = new List<ListBox> { ReadingBox, Completedbox, PlanToRead, Dropped };
+
+                var item = list[header.SelectedIndex].SelectedItem as MangaEntry;
+                if (item == null) return;
+
+                item.Title = MangaTitle.Text;
+                item.Rating = int.Parse(Rating.Text);
+                item.ReadStatus = Status.Text;
+                item.ChaptersRead = int.Parse(currentChapter.Text);
+                item.VolumesRead = int.Parse(currentVolume.Text);
+                list[header.SelectedIndex].Items.Refresh();
+            
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            List<ListBox> list = new List<ListBox> { ReadingBox, Completedbox, PlanToRead, Dropped };
+            var item = list[header.SelectedIndex].SelectedItem as MangaEntry;
             if (item == null) return;
 
-            item.Title = MangaTitle.Text;
-            item.Rating = int.Parse(Rating.Text);
-            item.ReadStatus = Status.Text;
-            item.ChaptersRead = int.Parse(currentChapter.Text);
-            item.VolumesRead = int.Parse(currentVolume.Text);
-            ReadingBox.Items.Refresh();
-
+            OpenFileDialog op = new OpenFileDialog();
+            op.Title = "Select a picture";
+            op.Filter = "All supported graphics|*.jpg;*.jpeg;*.png|" +
+              "JPEG (*.jpg;*.jpeg)|*.jpg;*.jpeg|" +
+              "Portable Network Graphic (*.png)|*.png";
+            if (op.ShowDialog() == true)
+            {
+                item.Source = op.FileName;
+            }
+            list[header.SelectedIndex].Items.Refresh();
         }
+
     }
 }

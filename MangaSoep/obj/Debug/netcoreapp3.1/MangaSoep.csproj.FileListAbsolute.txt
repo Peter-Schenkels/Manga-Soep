@@ -21,3 +21,4 @@ C:\Users\Peter Sjenkels\source\repos\MangaSoep\MangaSoep\bin\Debug\netcoreapp3.1
 C:\Users\Peter Sjenkels\source\repos\MangaSoep\MangaSoep\obj\Debug\netcoreapp3.1\App.baml
 C:\Users\Peter Sjenkels\source\repos\MangaSoep\MangaSoep\obj\Debug\netcoreapp3.1\GeneratedInternalTypeHelper.g.cs
 C:\Users\Peter Sjenkels\source\repos\MangaSoep\MangaSoep\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+C:\Users\Peter Sjenkels\source\repos\MangaSoep\MangaSoep\obj\Debug\netcoreapp3.1\MangaSoep.csproj.Fody.CopyLocal.cache

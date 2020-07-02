@@ -60,7 +60,7 @@ namespace MangaSoep {
             
             #line default
             #line hidden
-            System.Uri resourceLocater = new System.Uri("/MangaSoep_vejjxgoa_wpftmp;component/app.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/MangaSoep_555opg3e_wpftmp;component/app.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\App.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
